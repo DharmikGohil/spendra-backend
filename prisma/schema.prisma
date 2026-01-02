@@ -1,0 +1,119 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// USER & DEVICE
+// ============================================
+
+model User {
+  id                String        @id @default(uuid())
+  deviceId          String        @unique
+  deviceFingerprint String?
+  settings          Json          @default("{}")
+  createdAt         DateTime      @default(now())
+  lastSyncAt        DateTime?
+  transactions      Transaction[]
+
+  @@map("users")
+}
+
+// ============================================
+// CATEGORIES
+// ============================================
+
+model Category {
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  parentId     String?
+  parent       Category?     @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children     Category[]    @relation("CategoryHierarchy")
+  icon         String?
+  color        String?
+  isSystem     Boolean       @default(false)
+  transactions Transaction[]
+
+  @@map("categories")
+}
+
+// ============================================
+// TRANSACTIONS
+// ============================================
+
+model Transaction {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount             Decimal  @db.Decimal(12, 2)
+  type               TransactionType
+  merchant           String
+  merchantNormalized String?
+  source             TransactionSource
+  categoryId         String?
+  category           Category? @relation(fields: [categoryId], references: [id])
+  categoryConfidence Float?
+  timestamp          DateTime
+  rawTextHash        String   @unique
+  balance            Decimal? @db.Decimal(12, 2)
+  metadata           Json     @default("{}")
+  isManuallyEdited   Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([userId, timestamp])
+  @@index([merchantNormalized])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+}
+
+enum TransactionSource {
+  UPI
+  CARD
+  BANK
+  CASH
+  OTHER
+}
+
+// ============================================
+// MERCHANT MAPPINGS (for rule-based categorization)
+// ============================================
+
+model MerchantMapping {
+  id         String   @id @default(uuid())
+  pattern    String   @unique
+  categoryId String
+  confidence Float    @default(1.0)
+  createdAt  DateTime @default(now())
+
+  @@map("merchant_mappings")
+}
+
+// ============================================
+// AI INSIGHTS CACHE
+// ============================================
+
+model DailySummary {
+  id        String   @id @default(uuid())
+  userId    String
+  date      DateTime @db.Date
+  summary   String   @db.Text
+  insights  Json     @default("[]")
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@map("daily_summaries")
+}
