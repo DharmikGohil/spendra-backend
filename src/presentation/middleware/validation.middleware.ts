@@ -36,11 +36,13 @@ export function validateSchema(schemas: ValidationSchemas) {
         request.params = await schemas.params.parseAsync(request.params);
       }
     } catch (error) {
-      if (error instanceof ZodError) {npm
+      if (error instanceof ZodError) {
         const validationErrors = error.issues.map((issue) => ({
           field: issue.path.join('.'),
           message: issue.message,
         }));
+
+        console.error('Validation Errors:', JSON.stringify(validationErrors, null, 2));
 
         const response: ErrorResponse = {
           status: 'error',
