@@ -8,7 +8,7 @@ import {
  * Use case for getting spending summary by category.
  */
 export class GetSpendingSummaryUseCase {
-  constructor(private readonly transactionRepo: ITransactionRepository) {}
+  constructor(private readonly transactionRepo: ITransactionRepository) { }
 
   /**
    * Execute the get spending summary use case.
