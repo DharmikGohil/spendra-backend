@@ -1,6 +1,7 @@
 import { IUserRepository } from '../../interfaces/repos/user.repo.js';
 import { ITransactionRepository } from '../../interfaces/repos/transaction.repo.js';
 import { ICategorizationService } from '../../interfaces/services/categorization.service.js';
+import { ICategoryRepository } from '../../interfaces/repos/category.repo.js';
 import {
   SyncTransactionsRequestDTO,
   SyncTransactionsResponseDTO,
@@ -16,8 +17,9 @@ export class SyncTransactionsUseCase {
   constructor(
     private readonly userRepo: IUserRepository,
     private readonly transactionRepo: ITransactionRepository,
-    private readonly categorizationService: ICategorizationService
-  ) {}
+    private readonly categorizationService: ICategorizationService,
+    private readonly categoryRepo: ICategoryRepository
+  ) { }
 
   /**
    * Execute the sync transactions use case.
@@ -74,11 +76,38 @@ export class SyncTransactionsUseCase {
     const updatedUser = user.updateLastSync();
     await this.userRepo.update(updatedUser);
 
+    // 5. Fetch categories to populate response
+    const categories = await this.categoryRepo.findAll();
+    const categoryMap = new Map(categories.map(c => [c.id, c]));
+
+    const responseData = transactionsToSave.map(tx => {
+      const category = tx.categoryId ? categoryMap.get(tx.categoryId) : null;
+      return {
+        id: tx.id,
+        amount: tx.amount,
+        type: tx.type,
+        merchant: tx.merchant,
+        source: tx.source,
+        category: category ? {
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          icon: category.icon || null,
+          color: category.color || null
+        } : null,
+        categoryConfidence: tx.categoryConfidence || null,
+        timestamp: tx.timestamp.toISOString(),
+        balance: tx.balance || null,
+        isManuallyEdited: false
+      };
+    });
+
     return {
       success: true,
       created,
       skipped,
       errors,
+      data: responseData,
     };
   }
 }

@@ -26,7 +26,8 @@ import { categorizationService } from '../../infrastructure/services/categorizat
 const syncTransactionsUseCase = new SyncTransactionsUseCase(
   userRepository,
   transactionRepository,
-  categorizationService
+  categorizationService,
+  categoryRepository
 );
 
 const getTransactionsUseCase = new GetTransactionsUseCase(

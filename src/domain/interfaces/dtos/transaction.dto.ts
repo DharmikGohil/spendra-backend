@@ -32,6 +32,7 @@ export interface SyncTransactionsResponseDTO {
   created: number;
   skipped: number;
   errors: string[];
+  data: TransactionDTO[];
 }
 
 /**

@@ -1,6 +1,8 @@
 import { CategorizationService } from './categorization.service.impl.js';
 import { merchantMappingRepository, categoryRepository } from '../repository/implementation/instances.js';
 import { GeminiAiService } from './gemini.service.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Initialize AI service if API key is present
 const apiKey = process.env.GEMINI_API_KEY;
