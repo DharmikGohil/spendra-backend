@@ -4,6 +4,9 @@ import { errorHandler } from '../presentation/middleware/error.middleware.js';
 import { transactionRoutes } from '../presentation/routes/transaction.routes.js';
 import { categoryRoutes } from '../presentation/routes/category.routes.js';
 import { insightsRoutes } from '../presentation/routes/insights.routes.js';
+import { budgetRoutes } from '../presentation/routes/budget.routes.js';
+import { goalRoutes } from '../presentation/routes/goal.routes.js';
+import { suggestionsRoutes } from '../presentation/routes/suggestions.routes.js';
 
 export interface AppConfig {
   logger?: boolean | object;
@@ -19,9 +22,9 @@ export async function buildApp(config: AppConfig = {}): Promise<FastifyInstance>
       transport:
         process.env.NODE_ENV !== 'production'
           ? {
-              target: 'pino-pretty',
-              options: { colorize: true },
-            }
+            target: 'pino-pretty',
+            options: { colorize: true },
+          }
           : undefined,
     },
   });
@@ -45,6 +48,9 @@ export async function buildApp(config: AppConfig = {}): Promise<FastifyInstance>
   await fastify.register(transactionRoutes, { prefix: '/api/transactions' });
   await fastify.register(categoryRoutes, { prefix: '/api/categories' });
   await fastify.register(insightsRoutes, { prefix: '/api/insights' });
+  await fastify.register(budgetRoutes, { prefix: '/api/budgets' });
+  await fastify.register(goalRoutes, { prefix: '/api/goals' });
+  await fastify.register(suggestionsRoutes, { prefix: '/api/suggestions' });
 
   // Global error handler
   fastify.setErrorHandler(errorHandler);

@@ -31,7 +31,9 @@ export async function startServer(): Promise<void> {
     console.log(`   GET  /api/categories          - List categories`);
     console.log(`   GET  /api/categories/tree     - Category tree`);
     console.log(`   GET  /api/insights/spending   - Spending breakdown`);
-    console.log(`   GET  /api/insights/daily      - Daily AI summary\n`);
+    console.log(`   GET  /api/insights/daily      - Daily AI summary`);
+    console.log(`   GET  /api/budgets             - List budgets`);
+    console.log(`   GET  /api/goals               - List goals\n`);
 
     // Graceful shutdown
     const shutdown = async () => {
